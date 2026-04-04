@@ -10,7 +10,7 @@ public class BlackjackTestEnv {
 
         // 2. Initialize 4 BlackjackBot instances
         // We add them to the list as 'Player' objects so the Game class can handle them
-        for (int i = 1; i <= 6; i++) {
+        for (int i = 1; i <= 50; i++) {
             // Passing the ID as the name for the Player constructor
             BlackjackBot bot = new BlackjackBot(i);
             botList.add(bot);
@@ -18,7 +18,7 @@ public class BlackjackTestEnv {
 
         // 3. Initialize the Game engine
         // We pass the bot list and the number of decks (shoe size)
-        int shoeSize = 40;
+        int shoeSize = 100;
         Game blackjackGame = new Game(botList, shoeSize);
 
         System.out.println("Starting simulation with " + botList.size() + " bots and " + shoeSize + " decks...");

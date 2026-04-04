@@ -16,7 +16,6 @@ so should have separate funcs to determine 1 if spittable, 2 if hard/soft
  */
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class BlackjackBot extends Player implements Runnable {
     private int botId;
@@ -60,7 +59,7 @@ public class BlackjackBot extends Player implements Runnable {
 
                         if ("split".equalsIgnoreCase(decision)) {
                             split(hand, dealer.deck.takeCard(), dealer.deck.takeCard());
-                            break; // (or continue, depending on your loop structure)
+                            continue; // (or continue, depending on your loop structure)
                         }
                     }
                 }
@@ -69,11 +68,12 @@ public class BlackjackBot extends Player implements Runnable {
                 String scoreKey = String.valueOf(hand.getScore());
 
 // 4. EXTRACT MOVE WITH DIRECT NULL SAFETY
-                if (isSoft(hand)) {
+                if (isSoft(hand) && (hand.getScore() - 11) > 9) {
                     if (strategy.getSoftStrategy().get(upcardKey) != null) {
                         move = strategy.getSoftStrategy().get(upcardKey).get(String.valueOf(getScoresExceptFirstAce(hand)));
                     }
-                } else {
+                }
+                else {
                     if (strategy.getHardStrategy().get(upcardKey) != null) {
                         move = strategy.getHardStrategy().get(upcardKey).get(scoreKey);
                     }
@@ -82,6 +82,7 @@ public class BlackjackBot extends Player implements Runnable {
 // 5. FAILSAFE
                 if (move == null) {
                     System.out.println("Move not found");
+                    System.out.println(String.valueOf(hand) + ' ' + hand.getScore());
                     move = (hand.getScore() >= 17) ? "S" : "H";
                 }
 
@@ -95,6 +96,11 @@ public class BlackjackBot extends Player implements Runnable {
                     break;
                 } else if (move.equals("H")) {
                     hand.hit(dealer.deck.takeCard());
+                    // if gotten null card, deck is empty!
+                    if (hand.getHand().getLast() == null) {
+                        hand.getHand().removeLast();
+                        break;
+                    }
                 } else if (move.equals("D")) {
                     // Standard Double Down: Hit once and force stand
                     if (hand.getHand().size() == 2) {

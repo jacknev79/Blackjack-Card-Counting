@@ -24,6 +24,7 @@ public class Hand {
     }
 
     void hit(Card card) {
+        if (card == null) return;
         hand.add(card);
         int sum = 0;
         boolean ace = false;

@@ -23,8 +23,10 @@ public class Game {
      * Runs the simulation until the deck reaches the penetration limit.
      */
     public void runSimulation() {
-        // Run while the deck has enough cards (using 40 as a safe buffer)
-        while (dealer.deck.getDeck().size() > 40) {
+        int deckPen = players.size() * 10;
+        // Assume each player might take up to 5 cards
+
+        while (dealer.deck.getDeck().size() > deckPen) {
 
             // 1. Dealer deals the initial 2 cards to everyone
             this.dealer.deal();

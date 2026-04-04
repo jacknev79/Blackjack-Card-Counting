@@ -10,6 +10,7 @@ public class Deck {
     }
 
     public Card takeCard(){
+        if (deck.isEmpty()) return null;
         return deck.removeLast();
     }
 
