@@ -1,77 +1,87 @@
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Scanner;
 
 public class Game {
-    Dealer dealer;
-    ArrayList<Player> players = new ArrayList<>();
-    Scanner inp = new Scanner(System.in);
+    private Dealer dealer;
+    private ArrayList<Player> players;
 
-    public Game() {
-        System.out.println("Enter the number of decks per shoe:");
-        int shoeSize = inp.nextInt();
-        while (true) {
-            System.out.println("Please enter 'y' to add another player.");
-            String check = inp.next();
-            if (!Objects.equals(check, "y")) break;
-
-            System.out.println("Please enter the name of the next player.");
-            String name = inp.next();
-            Player p = new Player(name);
-            players.add(p);
-        }
+    /**
+     * Constructor now accepts the bots/players directly.
+     * No Scanner/System.in used here.
+     */
+    public Game(ArrayList<Player> players, int shoeSize) {
+        this.players = players;
+        // Connect the players to the dealer
         this.dealer = new Dealer(players, shoeSize);
-        play();
+        runSimulation();
     }
 
-    public boolean isBust(Hand hand){
-        if (hand.getScore() > 21) return true;
-        return false;
+    public boolean isBust(Hand hand) {
+        return hand.getScore() > 21;
     }
 
-    public void play() {
-        while (dealer.deck.getDeck().size() > 20) {
+    /**
+     * Runs the simulation until the deck reaches the penetration limit.
+     */
+    public void runSimulation() {
+        // Run while the deck has enough cards (using 40 as a safe buffer)
+        while (dealer.deck.getDeck().size() > 40) {
+
+            // 1. Dealer deals the initial 2 cards to everyone
             this.dealer.deal();
-            for (Player p : dealer.getPlayers()) {
+            if (dealer.hand.getScore() == 21) {
+                for (Player p : players) {
+                    p.finishRound();
+                }
+                continue;
+            }
+
+            // 2. Each player/bot plays their turn
+            for (Player p : players) {
                 p.play(this.dealer);
             }
+
+            // 3. Dealer plays their hand and gets final score
             int dealerScore = this.dealer.play();
-            System.out.println("Dealer has: " + dealerScore);
-            if (isBust(this.dealer.hand)) {
-                for (Player p : this.dealer.getPlayers()) {
-                    for (Hand h : p.getHands()) {
-                        if (!isBust(h)) {
-                            System.out.println(h + " Won!");
-                            p.winnings += h.getBet();
-                        } else {
-                            System.out.println(h + " Lost!");
-                            p.winnings -= h.getBet();
-                        }
-                    }
+            System.out.println("Dealer score: " + dealerScore);
+
+            // 4. Resolve winnings
+            resolveRound(dealerScore);
+
+            // 5. Cleanup hands for the next round
+            for (Player p : players) {
+                p.finishRound();
+            }
+        }
+
+        System.out.println("--- Simulation Ended: Deck low ---");
+    }
+
+    private void resolveRound(int dealerScore) {
+        boolean dealerBust = isBust(this.dealer.hand);
+
+        for (Player p : players) {
+            for (Hand h : p.getHands()) {
+                if (isBust(h)) {
+                    System.out.println(p.getName() + " Bust! Hand: " + h.getScore());
+                    p.winnings -= h.getBet();
                 }
-            } else {
-                for (Player p : this.dealer.getPlayers()) {
-                    for (Hand h : p.getHands()) {
-                        System.out.println(p.getName() + " Has " + h.getScore());
-                        if (isBust(h)) {
-                            System.out.println("Bust!");
-                            p.winnings -= h.bet;
-                            continue;
-                        }
-                        if (h.getScore() < dealerScore) {
-                            System.out.println(h + "Lost!");
-                            p.winnings -= h.bet;
-                        } else if (h.getScore() == dealerScore) {
-                            System.out.println(h + "Push!");
-                        } else {
-                            System.out.println(h + "Wins!");
-                            p.winnings += h.bet;
-                        }
-                    }
-                    p.getHands().clear();
+                else if (dealerBust) {
+                    System.out.println(p.getName() + " Won (Dealer Bust)! Hand: " + h.getScore());
+                    p.winnings += h.getBet();
+                }
+                else if (h.getScore() > dealerScore) {
+                    System.out.println(p.getName() + " Won! Hand: " + h.getScore());
+                    p.winnings += h.getBet();
+                }
+                else if (h.getScore() < dealerScore) {
+                    System.out.println(p.getName() + " Lost! Hand: " + h.getScore());
+                    p.winnings -= h.getBet();
+                }
+                else {
+                    System.out.println(p.getName() + " Push! Hand: " + h.getScore());
+                    // Winnings remain unchanged for push
                 }
             }
         }
-        play();
     }
 }

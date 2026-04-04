@@ -36,7 +36,7 @@ public class Player {
                 move = move.toLowerCase();
                 //NB may have to change to if to take adv. of break statement
 
-                if (move.equals("stand")) {
+                if (move.equals("stand") || move.equals("stick")) {
                     break;
                 } else if (move.equals("hit")) {
                     hand.hit(dealer.deck.takeCard());
@@ -57,6 +57,12 @@ public class Player {
         }
     }
 
+    public boolean takeInsurance() {
+        System.out.println(this.name + "Would you like Insurance? y/n");
+        String check = inp.next();
+        return check.equalsIgnoreCase("y");
+    }
+
     public boolean hasBlackjack(Hand hand){
         if (hand.getScore() == 21) return true;
         return false;
@@ -71,6 +77,8 @@ public class Player {
         this.hands.add(hand);
     }
 
+    public void finishRound() { this.hands.clear();}
+
     public int getWinnings() {
         return winnings;
     }
@@ -81,6 +89,10 @@ public class Player {
 
     public String getName() {
         return name;
+    }
+
+    public int enterBet() {
+        return inp.nextInt();
     }
 
     public int getBet() {

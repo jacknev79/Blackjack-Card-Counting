@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Scanner;
+
 
 public class Dealer {
     Deck deck;
@@ -10,7 +10,7 @@ public class Dealer {
     //NB should not generally close Scanner with stream = System.in
     //As will be needed for each hand to take in bet amounts, Scanner
     //is opened on Dealer initialisation.
-    Scanner inp = new Scanner(System.in);
+
 
     public Dealer(ArrayList<Player> players, int shoeSize) {
         this.players = players;
@@ -24,7 +24,7 @@ public class Dealer {
 
             for (Player player : this.players ){
                 System.out.println(player.name + " How much will you bet this hand?");
-                int bet = inp.nextInt();
+                int bet = player.enterBet();
                 Hand phand = new Hand(this.deck.takeCard(), this.deck.takeCard(), bet);
                 player.addHand(phand);
                 player.setBet(bet);
@@ -33,9 +33,8 @@ public class Dealer {
                 ArrayList<Player> insured = new ArrayList<>();
                 System.out.println("Dealer's upcard is an Ace. Please enter 'y' to take Insurance");
                 for (Player player : this.players){
-                    System.out.println(player.name + "Would you like Insurance?");
-                    String check = inp.next();
-                    if (Objects.equals(check, "y")) insured.add(player);
+                    boolean check = player.takeInsurance();
+                    if (check) insured.add(player);
                     }
                 if (!hasBlackjack() && !insured.isEmpty()) {
                     System.out.println("Dealer did not have Blackjack");
@@ -55,6 +54,7 @@ public class Dealer {
                     System.out.println("Dealer has BlackJack!");
                     for (Player p : players){
                         if (p.hasBlackjack(p.hands.getFirst())){
+                            //NB not sure if insured players can push!
                             System.out.println(p.name + " has BlackJack! Push.");
                         }
                         else{
@@ -66,6 +66,7 @@ public class Dealer {
                 }
             }
         System.out.println("Dealers upcard is: " + this.hand.getCard());
+
     }
 
     int play(){
@@ -83,5 +84,9 @@ public class Dealer {
 
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    public int upCard() {
+        return this.hand.getCard().getRank();
     }
 }
