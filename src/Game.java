@@ -1,3 +1,8 @@
+/*
+Make runnable? Each thread runs an instance of the Game class.
+Maybe have constructor create X bots to enter into game?
+Or a factory to do this.
+*/
 import java.util.ArrayList;
 
 public class Game {

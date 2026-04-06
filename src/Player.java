@@ -57,7 +57,7 @@ public class Player {
         }
     }
 
-    public boolean takeInsurance() {
+    public boolean takeInsurance(int unused) {
         System.out.println(this.name + "Would you like Insurance? y/n");
         String check = inp.next();
         return check.equalsIgnoreCase("y");
@@ -91,7 +91,7 @@ public class Player {
         return name;
     }
 
-    public int enterBet() {
+    public int enterBet(int unused) {
         return inp.nextInt();
     }
 

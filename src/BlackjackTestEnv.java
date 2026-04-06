@@ -8,9 +8,9 @@ public class BlackjackTestEnv {
         // 1. Create the list to hold our bots
         ArrayList<Player> botList = new ArrayList<>();
 
-        // 2. Initialize 4 BlackjackBot instances
+        // 2. Initialize i BlackjackBot instances
         // We add them to the list as 'Player' objects so the Game class can handle them
-        for (int i = 1; i <= 50; i++) {
+        for (int i = 1; i <= 5; i++) {
             // Passing the ID as the name for the Player constructor
             BlackjackBot bot = new BlackjackBot(i);
             botList.add(bot);
@@ -18,7 +18,7 @@ public class BlackjackTestEnv {
 
         // 3. Initialize the Game engine
         // We pass the bot list and the number of decks (shoe size)
-        int shoeSize = 100;
+        int shoeSize = 800;
         Game blackjackGame = new Game(botList, shoeSize);
 
         System.out.println("Starting simulation with " + botList.size() + " bots and " + shoeSize + " decks...");
@@ -34,6 +34,11 @@ public class BlackjackTestEnv {
 
         for (Player p : botList) {
             // Cast back to BlackjackBot if you need to access bot-specific methods like getBotId()
+
+            // NB for later, should have bots append their winnings to a list
+            // to take advantage of easy avg calculation, min/ max data, etc.
+
+            // can also be written to file for graphing
             if (p instanceof BlackjackBot) {
                 BlackjackBot bot = (BlackjackBot) p;
                 System.out.println("Bot ID:" + bot.getName() + " Final Winnings:" + bot.winnings);

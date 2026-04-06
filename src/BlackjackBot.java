@@ -17,7 +17,7 @@ so should have separate funcs to determine 1 if spittable, 2 if hard/soft
 
 import java.util.ArrayList;
 
-public class BlackjackBot extends Player implements Runnable {
+public class BlackjackBot extends Player {
     private int botId;
     private final BlackjackStrategyLoader strategy;
 
@@ -27,13 +27,6 @@ public class BlackjackBot extends Player implements Runnable {
         this.strategy = BlackjackStrategyLoader.getInstance();
     }
 
-    @Override
-    public void run() {
-        // Access the shared global instance
-
-
-        // Use the strategy
-    }
 
     @Override
     public void play(Dealer dealer) {
@@ -58,7 +51,7 @@ public class BlackjackBot extends Player implements Runnable {
                         String decision = strategy.getSplitStrategy().get(upcardKey).get(pairKey);
 
                         if ("split".equalsIgnoreCase(decision)) {
-                            split(hand, dealer.deck.takeCard(), dealer.deck.takeCard());
+                            split(hand, dealer.takeCard(), dealer.takeCard());
                             continue; // (or continue, depending on your loop structure)
                         }
                     }
@@ -95,7 +88,7 @@ public class BlackjackBot extends Player implements Runnable {
                 if (move.equals("S")) {
                     break;
                 } else if (move.equals("H")) {
-                    hand.hit(dealer.deck.takeCard());
+                    hand.hit(dealer.takeCard());
                     // if gotten null card, deck is empty!
                     if (hand.getHand().getLast() == null) {
                         hand.getHand().removeLast();
@@ -104,28 +97,31 @@ public class BlackjackBot extends Player implements Runnable {
                 } else if (move.equals("D")) {
                     // Standard Double Down: Hit once and force stand
                     if (hand.getHand().size() == 2) {
-                        hand.hit(dealer.deck.takeCard());
+                        hand.hit(dealer.takeCard());
                         hand.bet *= 2;
-                    } else {
-                        // Cannot double after hitting; default to Hit
-                        hand.hit(dealer.deck.takeCard());
-                        continue;
+                        break;
                     }
-                    break;
+                    else {
+                        // Cannot double after hitting; default to Hit
+                        hand.hit(dealer.takeCard());
+                    }
+
                 }
             }
         }
     }
 
-    @Override
-    public boolean takeInsurance() {
+    public boolean takeInsurance(int trueCount) {
         // Nb will be changed when true/ running count is implemented
-        return true;
+        if (trueCount >= 3) return true;
+        return false;
     }
 
     @Override
-    public int enterBet() {
-        return 100;
+    public int enterBet(int trueCount) {
+        // bet increases by 100 for each truecount
+        if (trueCount <= 0) return 25;
+        return 100 * trueCount;
     }
 
     private boolean isSplittable(Hand hand) {
