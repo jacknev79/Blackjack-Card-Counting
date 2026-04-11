@@ -27,7 +27,6 @@ public class BlackjackBot extends Player {
         this.strategy = BlackjackStrategyLoader.getInstance();
     }
 
-
     @Override
     public void play(Dealer dealer) {
         String upcardKey = String.valueOf(dealer.upCard());
@@ -74,8 +73,8 @@ public class BlackjackBot extends Player {
 
 // 5. FAILSAFE
                 if (move == null) {
-                    System.out.println("Move not found");
-                    System.out.println(String.valueOf(hand) + ' ' + hand.getScore());
+                    //System.out.println("Move not found");
+                    //System.out.println(String.valueOf(hand) + ' ' + hand.getScore());
                     move = (hand.getScore() >= 17) ? "S" : "H";
                 }
 
@@ -121,6 +120,7 @@ public class BlackjackBot extends Player {
     public int enterBet(int trueCount) {
         // bet increases by 100 for each truecount
         if (trueCount <= 0) return 25;
+        //if (trueCount >= 6) return 1000 + 100 * trueCount;
         return 100 * trueCount;
     }
 

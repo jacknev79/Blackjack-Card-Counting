@@ -23,69 +23,69 @@ public class Dealer {
     }
 
     void deal(){
-            Card dcard = this.deck.takeCard();
-            Card dhole = this.deck.takeCard();
-            this.hand = new Hand(dcard, dhole, 0);
-            this.runningCount += cardCount(dcard) + cardCount(dhole);
+        Card dcard = this.deck.takeCard();
+        Card dhole = this.deck.takeCard();
+        this.hand = new Hand(dcard, dhole, 0);
+        this.runningCount += cardCount(dcard) + cardCount(dhole);
 
-            for (Player player : this.players ){
-                System.out.println(player.name + " How much will you bet this hand?");
-                int bet = player.enterBet(getTrueCount());
-                Card card = this.deck.takeCard();
-                Card hole = this.deck.takeCard();
-                Hand phand = new Hand(card, hole, bet);
-                this.runningCount += cardCount(card) + cardCount(hole);
-                player.addHand(phand);
-                player.setBet(bet);
+        for (Player player : this.players ){
+            // System.out.println(player.name + " How much will you bet this hand?");
+            int bet = player.enterBet(getTrueCount());
+            Card card = this.deck.takeCard();
+            Card hole = this.deck.takeCard();
+            Hand phand = new Hand(card, hole, bet);
+            this.runningCount += cardCount(card) + cardCount(hole);
+            player.addHand(phand);
+            player.setBet(bet);
+        }
+        if (this.hand.card.getRank() == 1) {
+            ArrayList<Player> insured = new ArrayList<>();
+            // System.out.println("Dealer's upcard is an Ace. Please enter 'y' to take Insurance");
+            for (Player player : this.players){
+                boolean check = player.takeInsurance(getTrueCount());
+                if (check) insured.add(player);
             }
-            if (this.hand.card.getRank() == 1) {
-                ArrayList<Player> insured = new ArrayList<>();
-                System.out.println("Dealer's upcard is an Ace. Please enter 'y' to take Insurance");
-                for (Player player : this.players){
-                    boolean check = player.takeInsurance(getTrueCount());
-                    if (check) insured.add(player);
-                    }
-                if (!hasBlackjack() && !insured.isEmpty()) {
-                    System.out.println("Dealer did not have Blackjack");
-                    //dealer did not have blackjack, bet is lost
-                    for (Player player : insured) {
-                        player.winnings -= player.bet;
-                    }
-                }
-                else if (hasBlackjack() && !insured.isEmpty()){
-                    //dealer has blackjack, so pay out winnings
-                    System.out.println("Dealer had BlackJack!");
-                    for (Player player : insured) {
-                        player.winnings += 2 * player.getBet();
-                    }
-                }
-                if (this.hand.getScore() == 21){
-                    System.out.println("Dealer has BlackJack!");
-                    for (Player p : players){
-                        if (p.hasBlackjack(p.hands.getFirst())){
-                            //NB not sure if insured players can push!
-                            System.out.println(p.name + " has BlackJack! Push.");
-                        }
-                        else{
-                            p.winnings -= p.getBet();
-                            System.out.println(p.name + " lost!");
-                        }
-                    }
-
+            if (!hasBlackjack() && !insured.isEmpty()) {
+                // System.out.println("Dealer did not have Blackjack");
+                //dealer did not have blackjack, bet is lost
+                for (Player player : insured) {
+                    player.winnings -= player.bet;
                 }
             }
-        System.out.println("Dealers upcard is: " + this.hand.getCard());
+            else if (hasBlackjack() && !insured.isEmpty()){
+                //dealer has blackjack, so pay out winnings
+                //System.out.println("Dealer had BlackJack!");
+                for (Player player : insured) {
+                    player.winnings += 2 * player.getBet();
+                }
+            }
+            if (this.hand.getScore() == 21){
+                //System.out.println("Dealer has BlackJack!");
+                for (Player p : players){
+                    if (p.hasBlackjack(p.hands.getFirst())){
+                        //NB not sure if insured players can push!
+                        //System.out.println(p.name + " has BlackJack! Push.");
+                    }
+                    else{
+                        p.winnings -= p.getBet();
+                        // System.out.println(p.name + " lost!");
+                    }
+                }
+
+            }
+        }
+        // System.out.println("Dealers upcard is: " + this.hand.getCard());
 
     }
 
     int play(){
         while (this.hand.getScore() < 17){
-            System.out.println("Dealers hand is: " + this.hand);
+            // System.out.println("Dealers hand is: " + this.hand);
             Card card =  this.deck.takeCard();
             this.hand.hit(card);
             this.runningCount += cardCount(card);
         }
-        System.out.println("Dealers hand is: " + this.hand);
+        // System.out.println("Dealers hand is: " + this.hand);
         return this.hand.getScore();
     }
     boolean hasBlackjack(){
