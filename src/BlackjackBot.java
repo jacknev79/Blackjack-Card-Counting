@@ -16,6 +16,7 @@ so should have separate funcs to determine 1 if spittable, 2 if hard/soft
  */
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BlackjackBot extends Player {
     private int botId;
@@ -40,48 +41,72 @@ public class BlackjackBot extends Player {
 
             while (hand.getScore() < 21) {
                 String move = null;
+                String pairKey = String.valueOf(hand.getCard().getRank());
+                String scoreKey = String.valueOf(hand.getScore());
 
-                // 2. CHECK SPLIT STRATEGY
-                if (isSplittable(hand)) {
-                    String pairKey = String.valueOf(hand.getCard().getRank());
-
-                    // Directly query the Singleton, checking for null on the fly
-                    if (strategy.getSplitStrategy().get(upcardKey) != null) {
-                        String decision = strategy.getSplitStrategy().get(upcardKey).get(pairKey);
-
-                        if ("split".equalsIgnoreCase(decision)) {
-                            split(hand, dealer.takeCard(), dealer.takeCard());
-                            continue; // (or continue, depending on your loop structure)
+                int truecount = dealer.getTrueCount();
+                if (truecount >= 0) {
+                    HashMap<String, HashMap<String, String>>[] deviations = strategy.getDeviationStrategies();
+                    if (truecount >= 6) truecount = 5;
+                    for (int j = truecount; j >= 0; j--) {
+                        if (deviations[j].get(upcardKey) != null) {
+                            if (deviations[j].get(upcardKey).get(scoreKey) != null) {
+                                move = deviations[j].get(upcardKey).get(scoreKey);
+                                if (move != null) {
+                                    if (move.equals("split") && !isSplittable(hand)){
+                                        move = "S";
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
+                if (move == null) {
+
+
+                    // 2. CHECK SPLIT STRATEGY
+                    if (isSplittable(hand)) {
+
+                        // Directly query the Singleton, checking for null on the fly
+                        if (strategy.getSplitStrategy().get(upcardKey) != null) {
+                            String decision = strategy.getSplitStrategy().get(upcardKey).get(pairKey);
+
+                            if ("split".equalsIgnoreCase(decision)) {
+                                split(hand, dealer.takeCard(), dealer.takeCard());
+                                continue; // (or continue, depending on your loop structure)
+                            }
+                        }
+                    }
 
 // 3. CHECK HARD/SOFT STRATEGY
-                String scoreKey = String.valueOf(hand.getScore());
 
 // 4. EXTRACT MOVE WITH DIRECT NULL SAFETY
-                if (isSoft(hand) && (hand.getScore() - 11) > 9) {
-                    if (strategy.getSoftStrategy().get(upcardKey) != null) {
-                        move = strategy.getSoftStrategy().get(upcardKey).get(String.valueOf(getScoresExceptFirstAce(hand)));
+                    if (isSoft(hand) && (hand.getScore() - 11) > 9) {
+                        if (strategy.getSoftStrategy().get(upcardKey) != null) {
+                            move = strategy.getSoftStrategy().get(upcardKey).get(String.valueOf(getScoresExceptFirstAce(hand)));
+                        }
+                    } else {
+                        if (strategy.getHardStrategy().get(upcardKey) != null) {
+                            move = strategy.getHardStrategy().get(upcardKey).get(scoreKey);
+                        }
                     }
-                }
-                else {
-                    if (strategy.getHardStrategy().get(upcardKey) != null) {
-                        move = strategy.getHardStrategy().get(upcardKey).get(scoreKey);
-                    }
-                }
 
 // 5. FAILSAFE
+                    if (move == null) {
+                        //System.out.println("Move not found");
+                        //System.out.println(String.valueOf(hand) + ' ' + hand.getScore());
+                        move = (hand.getScore() >= 17) ? "S" : "H";
+                    }
+
+                    // 5. FAILSAFE: If the score isn't in our .properties files (e.g., score < 8)
+                }
                 if (move == null) {
-                    //System.out.println("Move not found");
-                    //System.out.println(String.valueOf(hand) + ' ' + hand.getScore());
                     move = (hand.getScore() >= 17) ? "S" : "H";
                 }
 
-                // 5. FAILSAFE: If the score isn't in our .properties files (e.g., score < 8)
-                if (move == null) {
-                    move = (hand.getScore() >= 17) ? "S" : "H";
-                }
+                // NB should have array in a for loop from truecount --> 5
+                // loop through each deviation hashmap
 
                 // 6. EXECUTE MOVE
                 if (move.equals("S")) {
@@ -89,10 +114,10 @@ public class BlackjackBot extends Player {
                 } else if (move.equals("H")) {
                     hand.hit(dealer.takeCard());
                     // if gotten null card, deck is empty!
-                    if (hand.getHand().getLast() == null) {
+                    /*if (hand.getHand().getLast() == null) {
                         hand.getHand().removeLast();
                         break;
-                    }
+                    }*/
                 } else if (move.equals("D")) {
                     // Standard Double Down: Hit once and force stand
                     if (hand.getHand().size() == 2) {
@@ -120,7 +145,7 @@ public class BlackjackBot extends Player {
     public int enterBet(int trueCount) {
         // bet increases by 100 for each truecount
         if (trueCount <= 0) return 25;
-        //if (trueCount >= 6) return 1000 + 100 * trueCount;
+        if (trueCount > 5) return 1000 + 100 * trueCount;
         return 100 * trueCount;
     }
 

@@ -4,6 +4,7 @@ public class Game implements Runnable {
     private Dealer dealer;
     private ArrayList<Player> players;
     private int gameId; // Added to identify which game thread is printing
+    private double totalWinnings;
 
     public Game(int gameId, ArrayList<Player> players, int shoeSize) {
         this.gameId = gameId;
@@ -70,6 +71,7 @@ public class Game implements Runnable {
             System.out.println("Game " + gameId + " | " + p.getName() + " Final Winnings: " + p.winnings);
             totalWinnings += p.winnings;
         }
+        this.totalWinnings = totalWinnings;
 
         double averageWinnings = totalWinnings / players.size();
         System.out.println("Game " + gameId + " | Average Winnings per bot: " + averageWinnings);
@@ -103,5 +105,13 @@ public class Game implements Runnable {
                 }
             }
         }
+    }
+
+    public int getId() {
+        return gameId;
+    }
+
+    public double getWinnings() {
+        return totalWinnings;
     }
 }

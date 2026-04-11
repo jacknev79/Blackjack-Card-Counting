@@ -10,14 +10,25 @@ public class BlackjackStrategyLoader {
     private HashMap<String, HashMap<String, String>> softStrategy = new HashMap<>();
     private HashMap<String, HashMap<String, String>> splitStrategy = new HashMap<>();
 
+    // The deviations array: Index is the True Count (0-5)
+    private final HashMap<String, HashMap<String, String>>[] deviationStrategies;
+
     // 1. Private constructor: No one else can instantiate this
     private BlackjackStrategyLoader() {
-        // You can hardcode the load path here or load via a config
+        // Initialize the array to size 6
+        this.deviationStrategies = new HashMap[6];
+        for (int i = 0; i < 6; i++) {
+            deviationStrategies[i] = new HashMap<>();
+        }
+
+        // Load standard files
         loadAllStrategies(".");
+
+        // Populate the deviations array
+        initializeDeviations();
     }
 
-    // 2. The "Holder" class: This is the thread-safe secret sauce.
-    // The JVM won't load this class until someone calls getInstance()
+    // 2. The "Holder" class: Thread-safe singleton implementation
     private static class LoaderHolder {
         private static final BlackjackStrategyLoader INSTANCE = new BlackjackStrategyLoader();
     }
@@ -27,17 +38,57 @@ public class BlackjackStrategyLoader {
         return LoaderHolder.INSTANCE;
     }
 
+    /**
+     * Hardcodes the specific deviation rules provided.
+     */
+    private void initializeDeviations() {
+        // True Count 0
+        addDev(0, "10", "16", "S");
+        addDev(0, "2", "13", "S");
+        addDev(0, "3", "13", "S");
+        addDev(0, "4", "12", "S");
+        addDev(0, "5", "12", "S");
+        addDev(0, "6", "12", "S");
+
+        // True Count 1
+        addDev(1, "1", "11", "D");
+        addDev(1, "2", "9", "D");
+
+        // True Count 2
+        addDev(2, "3", "12", "S");
+
+        // True Count 3
+        addDev(3, "2", "12", "S");
+        addDev(3, "7", "9", "D");
+
+        // True Count 4
+        addDev(4, "10", "15", "S");
+        addDev(4, "6", "20", "split");
+        addDev(4, "10", "10", "D");
+        addDev(4, "A", "10", "D");
+
+        // True Count 5
+        addDev(5, "5", "20", "split");
+        addDev(5, "9", "16", "S");
+
+    }
+
+    /**
+     * Helper to insert data into the nested structure.
+     */
+    private void addDev(int tc, String dealer, String player, String move) {
+        deviationStrategies[tc].putIfAbsent(dealer, new HashMap<>());
+        deviationStrategies[tc].get(dealer).put(player, move);
+    }
+
     private void loadAllStrategies(String rootDirectory) {
         this.hardStrategy = loadCategoryDirectory(new File(rootDirectory, "hard"));
         this.softStrategy = loadCategoryDirectory(new File(rootDirectory, "soft"));
         this.splitStrategy = loadCategoryDirectory(new File(rootDirectory, "split"));
         System.out.println("Global Strategy Loader Initialized.");
     }
-    /**
-     * Reads a specific category directory and builds the outer HashMap.
-     */
+
     private HashMap<String, HashMap<String, String>> loadCategoryDirectory(File directory) {
-        // Outer Map: Key = Dealer Upcard (String), Value = Inner HashMap
         HashMap<String, HashMap<String, String>> categoryMap = new HashMap<>();
 
         if (!directory.exists() || !directory.isDirectory()) {
@@ -45,50 +96,36 @@ public class BlackjackStrategyLoader {
             return categoryMap;
         }
 
-        // Only process .properties files
         File[] propertiesFiles = directory.listFiles((dir, name) -> name.endsWith(".properties"));
 
         if (propertiesFiles != null) {
             for (File file : propertiesFiles) {
-                // Outer Key: Extract dealer upcard by removing ".properties" from the filename
                 String dealerUpcardKey = file.getName().replace(".properties", "");
-
-                // Inner Map: Load the contents of the file
                 HashMap<String, String> handMovesMap = loadPropertiesIntoHashMap(file);
-
-                // Put the inner map into the outer map
                 categoryMap.put(dealerUpcardKey, handMovesMap);
             }
         }
         return categoryMap;
     }
 
-    /**
-     * Reads a single .properties file and builds the inner HashMap.
-     */
     private HashMap<String, String> loadPropertiesIntoHashMap(File file) {
-        // Inner Map: Key = Counter Hand Score (String), Value = Move (String)
         HashMap<String, String> movesMap = new HashMap<>();
         Properties properties = new Properties();
 
         try (FileInputStream fis = new FileInputStream(file)) {
             properties.load(fis);
-
-            // Iterate through the properties and populate the inner HashMap
             for (String handScoreKey : properties.stringPropertyNames()) {
                 String moveValue = properties.getProperty(handScoreKey);
-                // FIX: Split by '#' and take the first part, then trim spaces
                 String cleanValue = moveValue.split("#")[0].trim();
                 movesMap.put(handScoreKey, cleanValue);
             }
         } catch (IOException e) {
             System.err.println("Failed to read properties file: " + file.getName() + " due to: " + e.getMessage());
         }
-
         return movesMap;
     }
 
-    // Getters returning the exact specified HashMap structure
+    // Getters
     public HashMap<String, HashMap<String, String>> getHardStrategy() {
         return hardStrategy;
     }
@@ -99,5 +136,9 @@ public class BlackjackStrategyLoader {
 
     public HashMap<String, HashMap<String, String>> getSplitStrategy() {
         return splitStrategy;
+    }
+
+    public HashMap<String, HashMap<String, String>>[] getDeviationStrategies() {
+        return deviationStrategies;
     }
 }

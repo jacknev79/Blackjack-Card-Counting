@@ -27,7 +27,7 @@ public class BlackjackTestEnv {
 
         // 4. Run the simulation
         // This will loop internally until the deck penetration limit is reached
-        //blackjackGame.runSimulation();
+        blackjackGame.runSimulation();
 
         // 5. Simulation finished - Print final stats
         System.out.println("\n========================================");

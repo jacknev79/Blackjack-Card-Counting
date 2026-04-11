@@ -6,37 +6,46 @@ import java.util.concurrent.TimeUnit;
 public class LaunchSimulation {
 
     public static void main(String[] args) {
-        int NUM_GAMES = 10;
-        int NUM_PLAYERS = 2; // Set the number of bots per game
-        int SHOE_SIZE = 6;
+        int NUM_GAMES = 100000;
+        int NUM_PLAYERS = 2;
+        int SHOE_SIZE = 2;
 
-        // Use a thread pool sized to your CPU cores for maximum efficiency
+        // 1. Thread-safe storage: Every index is accessed by exactly one game ID
+        double[] allAverageWinnings = new double[NUM_GAMES];
+
         int cores = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(cores);
 
         System.out.println("Starting " + NUM_GAMES + " games across " + cores + " threads...");
 
-        for (int i = 1; i <= NUM_GAMES; i++) {
-
-            // 1. Create a fresh list of bots for THIS specific game
+        for (int i = 0; i < NUM_GAMES; i++) {
             ArrayList<Player> players = new ArrayList<>();
             for (int j = 1; j <= NUM_PLAYERS; j++) {
-                // Adjust this line to match how you instantiate your specific Bot/Player class
                 players.add(new BlackjackBot(j));
             }
 
-            // 2. Instantiate the game
+            // 2. Instantiate the game as you originally did
             Game game = new Game(i, players, SHOE_SIZE);
 
-            // 3. Hand the game off to the thread pool to execute
-            executor.submit(game);
+            // 3. Wrap the execution in a lambda to handle the result storage
+            executor.submit(() -> {
+                game.run();
+
+                // After run() completes, extract the data.
+                // Note: This assumes Game has these getter methods.
+                int gameId = game.getId();
+                double result = game.getWinnings();
+
+                // Write to the specific index. No sync needed because gameId is unique.
+                allAverageWinnings[gameId] = result;
+            });
         }
 
-        // 4. Tell the executor we are done sending tasks
         executor.shutdown();
 
         try {
-            // 5. Wait for all 1000 games to finish executing
+            // 4. Wait for all threads to finish.
+            // This creates a 'happens-before' memory barrier.
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             System.err.println("Simulation interrupted!");
@@ -44,5 +53,24 @@ public class LaunchSimulation {
         }
 
         System.out.println("All simulations have successfully completed.");
+        // Main thread can now safely read allAverageWinnings
+        double avg = 0;
+        double sum = 0;
+
+        double highest = 0;
+        double lowest = 0;
+        for (int i = 0; i < NUM_GAMES; i++) {
+            sum += allAverageWinnings[i];
+            if (allAverageWinnings[i] > highest) {
+                highest = allAverageWinnings[i];
+            }
+            else if (allAverageWinnings[i] < lowest) {
+                lowest = allAverageWinnings[i];
+            }
+        }
+        avg = sum / NUM_GAMES;
+        System.out.println("Average winnings per game: " + avg);
+        System.out.println("Lowest bot winnings: " + lowest);
+        System.out.println("Highest bot winnings: " + highest);
     }
 }
