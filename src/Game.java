@@ -35,6 +35,7 @@ public class Game implements Runnable {
             // 1. Dealer deals the initial 2 cards to everyone
             this.dealer.deal();
             if (dealer.hand.getScore() == 21) {
+                resolveRound(21);
                 for (Player p : players) {
                     p.finishRound();
                 }
@@ -64,27 +65,38 @@ public class Game implements Runnable {
     }
 
     private void printFinalStats() {
-        System.out.println("--- Game " + gameId + " Ended: Deck low ---");
+        //System.out.println("--- Game " + gameId + " Ended: Deck low ---");
         double totalWinnings = 0;
 
         for (Player p : players) {
-            System.out.println("Game " + gameId + " | " + p.getName() + " Final Winnings: " + p.winnings);
+            //System.out.println("Game " + gameId + " | " + p.getName() + " Final Winnings: " + p.winnings);
             totalWinnings += p.winnings;
         }
         this.totalWinnings = totalWinnings;
 
         double averageWinnings = totalWinnings / players.size();
-        System.out.println("Game " + gameId + " | Average Winnings per bot: " + averageWinnings);
-        System.out.println("----------------------------------------");
+      /*  System.out.println("Game " + gameId + " | Average Winnings per bot: " + averageWinnings);
+        System.out.println("----------------------------------------");*/
     }
 
     private void resolveRound(int dealerScore) {
         boolean dealerBust = isBust(this.dealer.hand);
+        boolean dealerBlackJack = false;
+        if (dealerScore == 21 && dealer.hand.getHand().size() == 2) dealerBlackJack = true;
 
         for (Player p : players) {
             for (Hand h : p.getHands()) {
                 if (isBust(h)) {
                     // System.out.println(p.getName() + " Bust! Hand: " + h.getScore());
+                    p.winnings -= h.getBet();
+                }
+                else if (p.hasBlackjack(h) && h.getHand().size() == 2){
+                    if (dealerBlackJack) {
+                        break;
+                    }
+                    p.winnings += (int) (1.5 * h.getBet());
+                }
+                else if (dealerBlackJack){
                     p.winnings -= h.getBet();
                 }
                 else if (dealerBust) {

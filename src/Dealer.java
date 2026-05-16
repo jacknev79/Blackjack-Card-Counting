@@ -1,6 +1,5 @@
 import java.util.ArrayList;
-import java.util.Objects;
-
+import java.util.Arrays;
 
 public class Dealer {
     Deck deck;
@@ -49,30 +48,31 @@ public class Dealer {
                 // System.out.println("Dealer did not have Blackjack");
                 //dealer did not have blackjack, bet is lost
                 for (Player player : insured) {
-                    player.winnings -= player.bet;
+                    player.winnings -= 0.5 * player.bet;
                 }
             }
             else if (hasBlackjack() && !insured.isEmpty()){
                 //dealer has blackjack, so pay out winnings
                 //System.out.println("Dealer had BlackJack!");
                 for (Player player : insured) {
-                    player.winnings += 2 * player.getBet();
+                    player.winnings += player.getBet();
                 }
             }
-            if (this.hand.getScore() == 21){
+            /*if (this.hand.getScore() == 21){
                 //System.out.println("Dealer has BlackJack!");
+
                 for (Player p : players){
-                    if (p.hasBlackjack(p.hands.getFirst())){
+                    if (!Arrays.asList(insured).contains(p)){
                         //NB not sure if insured players can push!
                         //System.out.println(p.name + " has BlackJack! Push.");
-                    }
-                    else{
                         p.winnings -= p.getBet();
-                        // System.out.println(p.name + " lost!");
+                    } else if (p.hasBlackjack(p.getHands().getFirst()) &&
+                            Arrays.asList(insured).contains(p)){
+                        p.winnings += p.getBet();
                     }
                 }
 
-            }
+            }*/
         }
         // System.out.println("Dealers upcard is: " + this.hand.getCard());
 
@@ -94,7 +94,7 @@ public class Dealer {
     }
 
     public Card takeCard(){
-        if (this.deck.getDeck().size() == 0) return null;
+        if (this.deck.getDeck().isEmpty()) return null;
         Card card =  this.deck.takeCard();
         this.runningCount += cardCount(card);
         return card;

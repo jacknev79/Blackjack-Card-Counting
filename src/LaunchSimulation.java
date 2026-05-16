@@ -1,3 +1,9 @@
+/*
+TODO
+Should add flags for surrender, late surrender, hit/ stand s17, etc
+as args passed into Game class.
+*/
+
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -7,8 +13,8 @@ public class LaunchSimulation {
 
     public static void main(String[] args) {
         int NUM_GAMES = 100000;
-        int NUM_PLAYERS = 2;
-        int SHOE_SIZE = 2;
+        int NUM_PLAYERS = 3;
+        int SHOE_SIZE = 1;
 
         // 1. Thread-safe storage: Every index is accessed by exactly one game ID
         double[] allAverageWinnings = new double[NUM_GAMES];
@@ -32,7 +38,6 @@ public class LaunchSimulation {
                 game.run();
 
                 // After run() completes, extract the data.
-                // Note: This assumes Game has these getter methods.
                 int gameId = game.getId();
                 double result = game.getWinnings();
 

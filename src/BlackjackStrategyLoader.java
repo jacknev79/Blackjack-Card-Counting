@@ -41,6 +41,8 @@ public class BlackjackStrategyLoader {
     /**
      * Hardcodes the specific deviation rules provided.
      */
+    // NB may change to .properties file to allow easy way to add
+    // additional deviations and make persist
     private void initializeDeviations() {
         // True Count 0
         addDev(0, "10", "16", "S");
