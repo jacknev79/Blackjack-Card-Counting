@@ -34,11 +34,8 @@ public class BlackjackBot extends Player {
         // Standard for-loop allows hands.size() to grow dynamically if we split
         for (int i = 0; i < hands.size(); i++) {
             Hand hand = hands.get(i);
-
-            // 1. Get the Dealer's upcard rank as a String (e.g., "10")
-            // Ensure getRank() returns the numeric value (1-11)
-
-
+            // NB for early surrender only, not correct for late surrender
+            //  Safe: Handles null checks internally and returns a clean primitive false
             while (hand.getScore() < 21) {
                 String move = null;
                 String pairKey = String.valueOf(hand.getCard().getRank());
@@ -147,6 +144,23 @@ public class BlackjackBot extends Player {
         if (trueCount <= 0) return 25;
         if (trueCount > 5) return 1000 + 100 * trueCount;
         return 100 * trueCount;
+    }
+
+    public void checkSurrender(Dealer dealer) {
+        if (hands.isEmpty()) return;
+
+        Hand initialHand = hands.getFirst();
+        String upcardKey = String.valueOf(dealer.upCard());
+
+        // Only allow surrender if we haven't split and have exactly 2 cards
+        if (hands.size() == 1 && initialHand.getHand().size() == 2) {
+            if (strategy.shouldSurrender(upcardKey, String.valueOf(initialHand.getScore()))) {
+
+                // Remove the hardcoded isSplittable check; trust the strategy tables!
+                this.winnings -= 0.5 * initialHand.getBet();
+                hands.clear(); // Safe to clear here since it's the only hand
+            }
+        }
     }
 
     private boolean isSplittable(Hand hand) {

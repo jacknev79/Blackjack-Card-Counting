@@ -2,9 +2,9 @@ public record GameConfig(
         int numPlayers,
         int deckPenetration,
         int shoeSize,
-        //boolean earlySurrender,
+        int numGames,
+        boolean earlySurrender,
         boolean lateSurrender,
         boolean hitSoft17
-){
-
+) {
 }

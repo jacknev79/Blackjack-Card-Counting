@@ -6,11 +6,11 @@ public class Game implements Runnable {
     private int gameId; // Added to identify which game thread is printing
     private double totalWinnings;
 
-    public Game(int gameId, ArrayList<Player> players, int shoeSize) {
+    public Game(int gameId, ArrayList<Player> players, GameConfig config) {
         this.gameId = gameId;
         this.players = players;
         // Connect the players to the dealer
-        this.dealer = new Dealer(players, shoeSize);
+        this.dealer = new Dealer(players, config);
         // runSimulation() removed from here. It will be called by run()
     }
 
@@ -92,7 +92,7 @@ public class Game implements Runnable {
                 }
                 else if (p.hasBlackjack(h) && h.getHand().size() == 2){
                     if (dealerBlackJack) {
-                        break;
+                        continue;
                     }
                     p.winnings += (int) (1.5 * h.getBet());
                 }

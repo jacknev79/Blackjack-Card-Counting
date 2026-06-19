@@ -11,10 +11,12 @@ import java.util.concurrent.TimeUnit;
 
 public class LaunchSimulation {
 
-    public static void main(String[] args) {
-        int NUM_GAMES = 100000;
-        int NUM_PLAYERS = 3;
-        int SHOE_SIZE = 1;
+    public static void main(GameConfig config) {
+
+        int NUM_PLAYERS = config.numPlayers();
+        int DECK_PENETRATION = config.deckPenetration();
+        int SHOE_SIZE = config.shoeSize();
+        int NUM_GAMES = config.numGames();
 
         // 1. Thread-safe storage: Every index is accessed by exactly one game ID
         double[] allAverageWinnings = new double[NUM_GAMES];
@@ -31,7 +33,7 @@ public class LaunchSimulation {
             }
 
             // 2. Instantiate the game as you originally did
-            Game game = new Game(i, players, SHOE_SIZE);
+            Game game = new Game(i, players, config);
 
             // 3. Wrap the execution in a lambda to handle the result storage
             executor.submit(() -> {
@@ -59,7 +61,7 @@ public class LaunchSimulation {
 
         System.out.println("All simulations have successfully completed.");
         // Main thread can now safely read allAverageWinnings
-        double avg = 0;
+        double avg;
         double sum = 0;
 
         double highest = 0;
