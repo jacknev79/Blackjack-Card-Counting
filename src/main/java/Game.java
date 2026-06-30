@@ -5,13 +5,16 @@ public class Game implements Runnable {
     private ArrayList<Player> players;
     private int gameId; // Added to identify which game thread is printing
     private double totalWinnings;
+    private int totalHands;
+    private double hoursSpentCounting;
 
     public Game(int gameId, ArrayList<Player> players, GameConfig config) {
         this.gameId = gameId;
         this.players = players;
         // Connect the players to the dealer
         this.dealer = new Dealer(players, config);
-        // runSimulation() removed from here. It will be called by run()
+        this.totalHands = 0;
+        this.hoursSpentCounting = 0;
     }
 
     // This method is required by the Runnable interface
@@ -31,7 +34,6 @@ public class Game implements Runnable {
         int DECK_PENETRATION = players.size() * 10;
 
         while (dealer.deck.getDeck().size() > DECK_PENETRATION) {
-
             // 1. Dealer deals the initial 2 cards to everyone
             this.dealer.deal();
             if (dealer.hand.getScore() == 21) {
@@ -56,6 +58,7 @@ public class Game implements Runnable {
 
             // 5. Cleanup hands for the next round
             for (Player p : players) {
+                this.totalHands += p.getHands().size();
                 p.finishRound();
             }
         }
@@ -66,6 +69,7 @@ public class Game implements Runnable {
 
     private void printFinalStats() {
         //System.out.println("--- Game " + gameId + " Ended: Deck low ---");
+        double HANDS_PER_HOUR = 100;
         double totalWinnings = 0;
 
         for (Player p : players) {
@@ -74,7 +78,9 @@ public class Game implements Runnable {
         }
         this.totalWinnings = totalWinnings;
 
-        double averageWinnings = totalWinnings / players.size();
+        this.hoursSpentCounting = HANDS_PER_HOUR / this.totalHands;
+        this.hoursSpentCounting /= this.players.size();
+        //double averageWinnings = totalWinnings / players.size();
       /*  System.out.println("Game " + gameId + " | Average Winnings per bot: " + averageWinnings);
         System.out.println("----------------------------------------");*/
     }
@@ -125,5 +131,9 @@ public class Game implements Runnable {
 
     public double getWinnings() {
         return totalWinnings;
+    }
+
+    public double getHoursSpentCounting() {
+        return hoursSpentCounting;
     }
 }

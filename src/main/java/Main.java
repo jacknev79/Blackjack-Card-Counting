@@ -1,16 +1,23 @@
 /*
-flags/ optional features split into 2 kinds:
-game variables ie deckpen, numplayers, etc
-strategy changers ie h/s17, surrender, resplit aces, etc
+NB will need to update directory paths/ add searching to make cli interactions work
+should create a non-counting bot that plays random moves?
+then have estimated time to play each card, stop a game at e.g. 1hr
+to get hourly rate?
+
+flags left to do:
+resplit, double after split, split aces
+deck penetration
+handle late/ early surr
+
+should re-add user-player back into new branch. can then have card counting training sim created???
 */
 
 public static void main(String[] args) {
     // 1. Set default values
     int numPlayers = 4;
     int deckPenetration = 40; // Default: e.g., 4 players * 10
-    int shoeSize = 6;
+    int shoeSize = 2;
     int numGames = 1000000;
-    // allowing surrender seems to be reducing bot winnings?
     boolean earlySurrender = false;
     boolean lateSurrender = false;
     boolean hitSoft17 = false;
@@ -30,13 +37,19 @@ public static void main(String[] args) {
             case "-s":
                 shoeSize = Integer.parseInt(args[++i]);
                 break;
-            case "--surrender":
-            case "-surr":
+            case "--late-surrender":
+            case "-lsurr":
                 // need to handle to accept as next arg early or late
-                //earlySurrender = true;
+                lateSurrender = true;
                 break;
             case "--hit-soft-17":
+            case "-h17":
                 hitSoft17 = true;
+                break;
+            case "--early-surrender":
+            case "-esurr":
+                // need to handle to accept as next arg early or late
+                earlySurrender = true;
                 break;
             default:
                 System.out.println("Unknown argument: " + args[i]);
@@ -48,13 +61,13 @@ public static void main(String[] args) {
     GameConfig config = new GameConfig(numPlayers, deckPenetration, shoeSize, numGames, earlySurrender, lateSurrender, hitSoft17);
 
     BlackjackStrategyLoader.initialize(config);
-    // 4. Start your ExecutorService and pass the config to your threads
-    // executor.submit(new Game(1, players, config));
-    /*String[] options = new String[4];
-    options[0] = numPlayers;
-    // NB is located in Game.java class
-    options[1] = deckPenetration;
-    options[2] = shoeSize;
-    options[3] = numGames;*/
+
+    System.out.println("Starting Simulation of " + numGames +  " Games, with " + numPlayers + " players and " + shoeSize + " Decks per shoe");
+    if (hitSoft17) System.out.println("Hit17 is on");
+    else System.out.println("Hit17 is off");
+    if (earlySurrender) System.out.println("EarlySurrender is on");
+    else System.out.println("EarlySurrender is off");
+    if (lateSurrender) System.out.println("Late Surrender is on");
+    else System.out.println("Late Surrender is off");
     LaunchSimulation.main(config);
 }
