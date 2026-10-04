@@ -1,9 +1,3 @@
-/*
-TODO
-Should add flags for surrender, late surrender, hit/ stand s17, etc
-as args passed into Game class.
-*/
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -15,8 +9,6 @@ public class LaunchSimulation {
     public static void main(GameConfig config) {
 
         int NUM_PLAYERS = config.numPlayers();
-        int DECK_PENETRATION = config.deckPenetration();
-        int SHOE_SIZE = config.shoeSize();
         int NUM_GAMES = config.numGames();
 
         // 1. Thread-safe storage: Every index is accessed by exactly one game ID
@@ -34,7 +26,6 @@ public class LaunchSimulation {
                 players.add(new BlackjackBot(j));
             }
 
-            // 2. Instantiate the game as you originally did
             Game game = new Game(i, players, config);
 
             // 3. Wrap the execution in a lambda to handle the result storage
@@ -80,13 +71,15 @@ public class LaunchSimulation {
             else if (allAverageWinnings[i] < lowest) {
                 lowest = allAverageWinnings[i];
             }
-            sumExpectedHourlyValue += allAverageWinnings[i] / allHoursSpent[i];
+            if (allHoursSpent[i] > 0 && allAverageWinnings[i] > 0) {
+                sumExpectedHourlyValue += allAverageWinnings[i] / allHoursSpent[i];
+        }
         }
         avgWinnings = sumWinnings / NUM_GAMES;
         expectedHourlyValue = sumExpectedHourlyValue / NUM_GAMES;
         System.out.println("Average winnings per game: " + avgWinnings);
         System.out.println("Lowest bot winnings: " + lowest);
         System.out.println("Highest bot winnings: " + highest);
-        System.out.println("Your Expected EV is: " + expectedHourlyValue);
+        System.out.println("Your Expected Earnings per hour is: " + expectedHourlyValue);
     }
 }

@@ -142,7 +142,7 @@ public class BlackjackBot extends Player {
     public int enterBet(int trueCount) {
         // bet increases by 100 for each truecount
         if (trueCount <= 0) return 25;
-        if (trueCount > 5) return 1000 + 100 * trueCount;
+        if (trueCount > 5) return 400 + 100 * (trueCount - 4);
         return 100 * trueCount;
     }
 

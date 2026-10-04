@@ -1,13 +1,14 @@
 /*
-NB will need to update directory paths/ add searching to make cli interactions work
 should create a non-counting bot that plays random moves? akin dummy bot for control.
 then have estimated time to play each card, stop a game at e.g. 1hr
 to get hourly rate?
 
 flags left to do:
 resplit, double after split, split aces
-deck penetration
-handle late/ early surr
+should add betspread? allow testing many different betspreads without changing
+blackjack bot hardcoded values
+can specify min, max, and step i.e. how much bet increases per TrueCount
+
 
 should re-add user-player back into new branch. can then have card counting training sim created???
 */
@@ -15,12 +16,12 @@ should re-add user-player back into new branch. can then have card counting trai
 public static void main(String[] args) {
     // 1. Set default values
     int numPlayers = 4;
-    int deckPenetration = 40; // Default: e.g., 4 players * 10
+    int deckPenetration = 5; // Default: e.g., 4 players * 10
     int shoeSize = 2;
-    int numGames = 10000;
+    int numGames = 1000000;
     boolean earlySurrender = false;
     boolean lateSurrender = false;
-    boolean hitSoft17 = false;
+    boolean hitSoft17 = true;
 
     // 2. Parse arguments
     for (int i = 0; i < args.length; i++) {
@@ -63,8 +64,8 @@ public static void main(String[] args) {
     BlackjackStrategyLoader.initialize(config);
 
     System.out.println("Starting Simulation of " + numGames +  " Games, with " + numPlayers + " players and " + shoeSize + " Decks per shoe");
-    if (hitSoft17) System.out.println("Hit17 is on");
-    else System.out.println("Hit17 is off");
+    if (hitSoft17) System.out.println("HitSoft17 is on");
+    else System.out.println("StandSoft17 is on");
     if (earlySurrender) System.out.println("EarlySurrender is on");
     else System.out.println("EarlySurrender is off");
     if (lateSurrender) System.out.println("Late Surrender is on");
