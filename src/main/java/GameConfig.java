@@ -1,5 +1,6 @@
 public record GameConfig(
         int numPlayers,
+        int numDummy,
         int deckPenetration,
         int shoeSize,
         int numGames,

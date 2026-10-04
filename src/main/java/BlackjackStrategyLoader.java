@@ -1,3 +1,5 @@
+// should refactor to remove surrender parsing/ setup from this class.
+// should instead be in own SetupSurrender class.
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;

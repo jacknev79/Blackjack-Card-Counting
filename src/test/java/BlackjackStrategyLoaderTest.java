@@ -29,7 +29,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testSingletonIdentity() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
 
         BlackjackStrategyLoader instance1 = BlackjackStrategyLoader.getInstance();
@@ -41,7 +41,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testHardcodedDeviationsLoading() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -53,7 +53,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testParseMove_StandardS17vsH17Splits() throws Exception {
-        GameConfig h17Config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig h17Config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(h17Config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -65,7 +65,7 @@ public class BlackjackStrategyLoaderTest {
         assertEquals("H", standardMoveH17, "Should choose the second move (index 1) when hitSoft17 is TRUE");
 
         resetSingletonBeforeEachTest();
-        GameConfig s17Config = new GameConfig(1, 75, 6, 1000000, true, false,false);
+        GameConfig s17Config = new GameConfig(1, 0, 75, 6, 1000000, true, false,false);
         BlackjackStrategyLoader.initialize(s17Config);
         loader = BlackjackStrategyLoader.getInstance();
 
@@ -76,7 +76,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testParseMove_SurrenderEdgeCases() throws Exception {
-        GameConfig surrenderDisabled = new GameConfig(1, 75, 6, 1000000, false, false,true);
+        GameConfig surrenderDisabled = new GameConfig(1, 0, 75, 6, 1000000, false, false,true);
         BlackjackStrategyLoader.initialize(surrenderDisabled);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -88,7 +88,7 @@ public class BlackjackStrategyLoaderTest {
         assertEquals("H", getStandardMoveFromRecord(res1), "The fallback move should still extract cleanly");
 
         resetSingletonBeforeEachTest();
-        GameConfig surrenderEnabled = new GameConfig(1, 75, 6, 1000000, true, false,false);
+        GameConfig surrenderEnabled = new GameConfig(1, 0, 75, 6, 1000000, true, false,false);
         BlackjackStrategyLoader.initialize(surrenderEnabled);
         loader = BlackjackStrategyLoader.getInstance();
 
@@ -100,7 +100,7 @@ public class BlackjackStrategyLoaderTest {
         assertFalse(getShouldSurrenderFromRecord(res3), "SURR_H17 should resolve to false if game rules run on S17");
 
         resetSingletonBeforeEachTest();
-        GameConfig h17Surrender = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig h17Surrender = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(h17Surrender);
         loader = BlackjackStrategyLoader.getInstance();
 
@@ -110,7 +110,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testParseMove_ComplexThreeTierSplit() throws Exception {
-        GameConfig s17Config = new GameConfig(1, 75, 6, 1000000, true, false,false);
+        GameConfig s17Config = new GameConfig(1, 0, 75, 6, 1000000, true, false,false);
         BlackjackStrategyLoader.initialize(s17Config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -122,7 +122,7 @@ public class BlackjackStrategyLoaderTest {
         assertFalse(getShouldSurrenderFromRecord(s17Result), "S17 configuration must skip H17 conditional surrender rules");
 
         resetSingletonBeforeEachTest();
-        GameConfig h17Config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig h17Config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(h17Config);
         loader = BlackjackStrategyLoader.getInstance();
 
@@ -137,7 +137,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testStrategyMapsAreLoadedFromClasspath() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -152,7 +152,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testLoadPropertiesFromClasspath_MissingResourceHandlesGracefully() throws Exception {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -168,7 +168,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testStrategyLookup_HardHand() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -187,7 +187,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testStrategyLookup_SoftHand() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0,75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -203,7 +203,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testStrategyLookup_SplitHand() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -219,7 +219,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testSurrenderLookup_SafeHandlingOfMissingKeys() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 
@@ -232,7 +232,7 @@ public class BlackjackStrategyLoaderTest {
 
     @Test
     public void testSurrenderLookup_ValidSurrenderScenario() {
-        GameConfig config = new GameConfig(1, 75, 6, 1000000, true, false,true);
+        GameConfig config = new GameConfig(1, 0, 75, 6, 1000000, true, false,true);
         BlackjackStrategyLoader.initialize(config);
         BlackjackStrategyLoader loader = BlackjackStrategyLoader.getInstance();
 

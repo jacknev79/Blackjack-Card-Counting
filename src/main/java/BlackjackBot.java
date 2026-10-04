@@ -95,11 +95,6 @@ public class BlackjackBot extends Player {
                         //System.out.println(String.valueOf(hand) + ' ' + hand.getScore());
                         move = (hand.getScore() >= 17) ? "S" : "H";
                     }
-
-                    // 5. FAILSAFE: If the score isn't in our .properties files (e.g., score < 8)
-                }
-                if (move == null) {
-                    move = (hand.getScore() >= 17) ? "S" : "H";
                 }
 
                 // NB should have array in a for loop from truecount --> 5
@@ -163,11 +158,12 @@ public class BlackjackBot extends Player {
         }
     }
 
-    private boolean isSplittable(Hand hand) {
-        return hand.getCard() == hand.getHole();
+    boolean isSplittable(Hand hand) {
+        if (hand.getHole() == null || hand.getCard() == null) return false;
+        return hand.getCard() == hand.getHole() && hand.hand.size() == 2;
     }
 
-    private boolean isSoft(Hand hand) {
+    boolean isSoft(Hand hand) {
         boolean hasAce = false;
 
         // Iterate over all cards in the hand list, not just hole and upcard
@@ -196,6 +192,10 @@ public class BlackjackBot extends Player {
         }
 
         return score;
+    }
+
+    public int getBotId() {
+        return botId;
     }
 }
 

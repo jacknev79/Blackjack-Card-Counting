@@ -6,12 +6,12 @@ import java.util.ArrayList;
 
 public class DealerTest {
     private Dealer dealer;
-    private ArrayList<Player> players;
+    private ArrayList<BlackjackBot> players;
     private GameConfig config;
 
     @BeforeEach
     void setUp() {
-        config = new GameConfig(1, 0, 1, 1, false,true, true);
+        config = new GameConfig(1, 0, 0, 1, 1, false,true, true);
         BlackjackStrategyLoader.initialize(config);
         players = new ArrayList<>();
         players.add(new BlackjackBot(1));

@@ -13,11 +13,11 @@ public class GameTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        GameConfig config = new GameConfig(1, 10, 1, 1, false,true, true);
+        GameConfig config = new GameConfig(1, 0, 10, 1, 1, false,true, true);
         BlackjackStrategyLoader.initialize(config);
 
         bot = new BlackjackBot(1);
-        ArrayList<Player> players = new ArrayList<>();
+        ArrayList<BlackjackBot> players = new ArrayList<>();
         players.add(bot);
 
         game = new Game(1, players, config);

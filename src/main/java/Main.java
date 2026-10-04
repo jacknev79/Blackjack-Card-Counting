@@ -16,7 +16,8 @@ should re-add user-player back into new branch. can then have card counting trai
 public static void main(String[] args) {
     // 1. Set default values
     int numPlayers = 4;
-    int deckPenetration = 5; // Default: e.g., 4 players * 10
+    int numDummy = 0;
+    int deckPenetration = 5;
     int shoeSize = 2;
     int numGames = 1000000;
     boolean earlySurrender = false;
@@ -59,7 +60,7 @@ public static void main(String[] args) {
     }
 
     // 3. Create the immutable config ONCE
-    GameConfig config = new GameConfig(numPlayers, deckPenetration, shoeSize, numGames, earlySurrender, lateSurrender, hitSoft17);
+    GameConfig config = new GameConfig(numPlayers, numDummy, deckPenetration, shoeSize, numGames, earlySurrender, lateSurrender, hitSoft17);
 
     BlackjackStrategyLoader.initialize(config);
 

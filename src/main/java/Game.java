@@ -2,21 +2,23 @@ import java.util.ArrayList;
 
 public class Game implements Runnable {
     private Dealer dealer;
-    private ArrayList<Player> players;
+    private ArrayList<BlackjackBot> players;
     private int gameId; // Added to identify which game thread is printing
     private double totalWinnings;
     private int totalHands;
     private double hoursSpentCounting;
     private int DECK_PENETRATION;
+    private int NUM_PLAYERS;
 
-    public Game(int gameId, ArrayList<Player> players, GameConfig config) {
+    public Game(int gameId, ArrayList<BlackjackBot> players, GameConfig config) {
         this.gameId = gameId;
         this.players = players;
         // Connect the players to the dealer
         this.dealer = new Dealer(players, config);
         this.totalHands = 0;
         this.hoursSpentCounting = 0;
-        this.DECK_PENETRATION = config.deckPenetration() * players.size();
+        this.NUM_PLAYERS = config.numPlayers();
+        this.DECK_PENETRATION = config.deckPenetration() * NUM_PLAYERS;
     }
 
     // This method is required by the Runnable interface
@@ -71,18 +73,19 @@ public class Game implements Runnable {
     private void printFinalStats() {
         //System.out.println("--- Game " + gameId + " Ended: Deck low ---");
         // something wrong here, decreasing hands per hour is increasing EV, not decreasing it.
-        double HANDS_PER_HOUR = 200 - (20 * players.size());
+        double HANDS_PER_HOUR = 200 - (20 * NUM_PLAYERS);
         double totalWinnings = 0;
 
-        for (Player p : players) {
+        for (BlackjackBot p : players) {
             //System.out.println("Game " + gameId + " | " + p.getName() + " Final Winnings: " + p.winnings);
+            if (p.getBotId() < 0) continue;
             totalWinnings += p.winnings;
         }
         this.totalWinnings = totalWinnings;
 
         this.hoursSpentCounting = this.totalHands / HANDS_PER_HOUR;
-        this.hoursSpentCounting /= this.players.size();
-        //double averageWinnings = totalWinnings / players.size();
+        this.hoursSpentCounting /= NUM_PLAYERS;
+        //double averageWinnings = totalWinnings / NUM_PLAYERS;
       /*  System.out.println("Game " + gameId + " | Average Winnings per bot: " + averageWinnings);
         System.out.println("----------------------------------------");*/
     }

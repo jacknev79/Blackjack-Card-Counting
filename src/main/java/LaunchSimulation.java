@@ -10,6 +10,7 @@ public class LaunchSimulation {
 
         int NUM_PLAYERS = config.numPlayers();
         int NUM_GAMES = config.numGames();
+        int NUM_DUMMY = 3;
 
         // 1. Thread-safe storage: Every index is accessed by exactly one game ID
         double[] allAverageWinnings = new double[NUM_GAMES];
@@ -21,7 +22,7 @@ public class LaunchSimulation {
         System.out.println("Starting " + NUM_GAMES + " games across " + cores + " threads...");
 
         for (int i = 0; i < NUM_GAMES; i++) {
-            ArrayList<Player> players = new ArrayList<>();
+            ArrayList<BlackjackBot> players = new ArrayList<>();
             for (int j = 1; j <= NUM_PLAYERS; j++) {
                 players.add(new BlackjackBot(j));
             }

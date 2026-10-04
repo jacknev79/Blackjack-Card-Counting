@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Player {
-    Scanner inp = new Scanner(System.in);
+    protected static Scanner inp = new Scanner(System.in);
     ArrayList<Hand> hands;
     int winnings;
     String name;
