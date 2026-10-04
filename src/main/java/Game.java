@@ -7,6 +7,7 @@ public class Game implements Runnable {
     private double totalWinnings;
     private int totalHands;
     private double hoursSpentCounting;
+    private int DECK_PENETRATION;
 
     public Game(int gameId, ArrayList<Player> players, GameConfig config) {
         this.gameId = gameId;
@@ -15,6 +16,7 @@ public class Game implements Runnable {
         this.dealer = new Dealer(players, config);
         this.totalHands = 0;
         this.hoursSpentCounting = 0;
+        this.DECK_PENETRATION = config.deckPenetration() * players.size();
     }
 
     // This method is required by the Runnable interface
@@ -31,9 +33,8 @@ public class Game implements Runnable {
      * Runs the simulation until the deck reaches the penetration limit.
      */
     public void runSimulation() {
-        int DECK_PENETRATION = players.size() * 10;
 
-        while (dealer.deck.getDeck().size() > DECK_PENETRATION) {
+        while (dealer.deck.getDeck().size() > this.DECK_PENETRATION) {
             // 1. Dealer deals the initial 2 cards to everyone
             this.dealer.deal();
             if (dealer.hand.getScore() == 21) {
@@ -70,7 +71,7 @@ public class Game implements Runnable {
     private void printFinalStats() {
         //System.out.println("--- Game " + gameId + " Ended: Deck low ---");
         // something wrong here, decreasing hands per hour is increasing EV, not decreasing it.
-        double HANDS_PER_HOUR = 210;
+        double HANDS_PER_HOUR = 200 - (20 * players.size());
         double totalWinnings = 0;
 
         for (Player p : players) {
@@ -79,7 +80,7 @@ public class Game implements Runnable {
         }
         this.totalWinnings = totalWinnings;
 
-        this.hoursSpentCounting = HANDS_PER_HOUR / this.totalHands;
+        this.hoursSpentCounting = this.totalHands / HANDS_PER_HOUR;
         this.hoursSpentCounting /= this.players.size();
         //double averageWinnings = totalWinnings / players.size();
       /*  System.out.println("Game " + gameId + " | Average Winnings per bot: " + averageWinnings);
