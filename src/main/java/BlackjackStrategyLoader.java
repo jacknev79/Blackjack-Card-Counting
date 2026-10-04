@@ -1,6 +1,5 @@
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -23,6 +22,7 @@ public class BlackjackStrategyLoader {
     private final HashMap<String, HashMap<String, String>>[] deviationStrategies;
 
     // 1. Private constructor: Executed once during initialize()
+    @SuppressWarnings("unchecked")
     private BlackjackStrategyLoader(GameConfig config) {
         this.config = config;
 
@@ -32,8 +32,8 @@ public class BlackjackStrategyLoader {
             deviationStrategies[i] = new HashMap<>();
         }
 
-        // Load standard files
-        loadAllStrategies(".");
+        // Load standard files from the classpath
+        loadAllStrategies();
 
         // Populate the deviations array
         initializeDeviations();
@@ -159,43 +159,43 @@ public class BlackjackStrategyLoader {
         deviationStrategies[tc].get(dealer).put(player, result.standardMove());
     }
 
-    private void loadAllStrategies(String rootDirectory) {
+    private void loadAllStrategies() {
         this.surrenderStrategy = new HashMap<>();
-        this.hardStrategy = loadCategoryDirectory(new File(rootDirectory, "hard"));
-        this.softStrategy = loadCategoryDirectory(new File(rootDirectory, "soft"));
-        this.splitStrategy = loadCategoryDirectory(new File(rootDirectory, "split"));
+        this.hardStrategy = loadCategory("hard");
+        this.softStrategy = loadCategory("soft");
+        this.splitStrategy = loadCategory("split");
         System.out.println("Global Strategy Loader Initialized.");
     }
 
-    private HashMap<String, HashMap<String, String>> loadCategoryDirectory(File directory) {
+    private HashMap<String, HashMap<String, String>> loadCategory(String categoryName) {
         HashMap<String, HashMap<String, String>> categoryMap = new HashMap<>();
+        String[] dealerUpcards = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
 
-        if (!directory.exists() || !directory.isDirectory()) {
-            System.err.println("Directory not found: " + directory.getAbsolutePath());
-            return categoryMap;
-        }
+        for (String upcard : dealerUpcards) {
+            String resourcePath = "/" + categoryName + "/" + upcard + ".properties";
+            HashMap<String, String> handMovesMap = loadPropertiesFromClasspath(resourcePath, upcard);
 
-        File[] propertiesFiles = directory.listFiles((dir, name) -> name.endsWith(".properties"));
-
-        if (propertiesFiles != null) {
-            for (File file : propertiesFiles) {
-                String dealerUpcardKey = file.getName().replace(".properties", "");
-                HashMap<String, String> handMovesMap = loadPropertiesIntoHashMap(file, dealerUpcardKey);
-                categoryMap.put(dealerUpcardKey, handMovesMap);
-            }
+            // FIX: We now ALWAYS put the upcard in the category map, even if handMovesMap is empty.
+            // This prevents chained NullPointerExceptions when calling .get(upcard).get(playerHand)
+            categoryMap.put(upcard, handMovesMap);
         }
         return categoryMap;
     }
 
-    private HashMap<String, String> loadPropertiesIntoHashMap(File file, String dealerUpcardKey) {
+    private HashMap<String, String> loadPropertiesFromClasspath(String resourcePath, String dealerUpcardKey) {
         HashMap<String, String> movesMap = new HashMap<>();
         Properties properties = new Properties();
 
         surrenderStrategy.putIfAbsent(dealerUpcardKey, new HashMap<>());
         HashMap<String, Boolean> dealerSurrenderMap = surrenderStrategy.get(dealerUpcardKey);
 
-        try (FileInputStream fis = new FileInputStream(file)) {
-            properties.load(fis);
+        try (InputStream is = BlackjackStrategyLoader.class.getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                // Return the empty map safely if file is not found
+                return movesMap;
+            }
+
+            properties.load(is);
             for (String handScoreKey : properties.stringPropertyNames()) {
                 String moveValue = properties.getProperty(handScoreKey);
                 String cleanValue = moveValue.split("#")[0].trim();
@@ -203,13 +203,12 @@ public class BlackjackStrategyLoader {
                 ParsedMoveResult parsedResult = parseMove(cleanValue);
                 movesMap.put(handScoreKey, parsedResult.standardMove());
 
-                // Track surrender values. Keep 'true' status if loaded via prior directory scans.
                 if (parsedResult.shouldSurrender() || !dealerSurrenderMap.containsKey(handScoreKey)) {
                     dealerSurrenderMap.put(handScoreKey, parsedResult.shouldSurrender());
                 }
             }
         } catch (IOException e) {
-            System.err.println("Failed to read properties file: " + file.getName() + " due to: " + e.getMessage());
+            System.err.println("Failed to read properties file at: " + resourcePath + " due to: " + e.getMessage());
         }
         return movesMap;
     }

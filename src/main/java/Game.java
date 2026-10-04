@@ -69,7 +69,8 @@ public class Game implements Runnable {
 
     private void printFinalStats() {
         //System.out.println("--- Game " + gameId + " Ended: Deck low ---");
-        double HANDS_PER_HOUR = 100;
+        // something wrong here, decreasing hands per hour is increasing EV, not decreasing it.
+        double HANDS_PER_HOUR = 210;
         double totalWinnings = 0;
 
         for (Player p : players) {

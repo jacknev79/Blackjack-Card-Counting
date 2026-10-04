@@ -1,6 +1,6 @@
 /*
 NB will need to update directory paths/ add searching to make cli interactions work
-should create a non-counting bot that plays random moves?
+should create a non-counting bot that plays random moves? akin dummy bot for control.
 then have estimated time to play each card, stop a game at e.g. 1hr
 to get hourly rate?
 
@@ -17,7 +17,7 @@ public static void main(String[] args) {
     int numPlayers = 4;
     int deckPenetration = 40; // Default: e.g., 4 players * 10
     int shoeSize = 2;
-    int numGames = 1000000;
+    int numGames = 10000;
     boolean earlySurrender = false;
     boolean lateSurrender = false;
     boolean hitSoft17 = false;

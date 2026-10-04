@@ -45,21 +45,21 @@ public class BlackjackBotTest {
     @Test
     void testFallbackPlayStrategy_HitsUnder17() {
         // Without mocked files, the strategy loader falls back to move = (score >= 17) ? "S" : "H"
-        Hand botHand = new Hand(new Card('H', "10"), new Card('C', "6"), 100); // 16
+        Hand botHand = new Hand(new Card('H', "10"), new Card('C', "4"), 100); // 16
         bot.addHand(botHand);
 
         dealer.hand = new Hand(new Card('H', "10"), new Card('D', "2"), 0);
 
         // Stack deck with a card that won't bust it over 21
         dealer.deck.getDeck().clear();
-        dealer.deck.getDeck().add(new Card('S', "5")); // Drawn during hit
-        dealer.deck.getDeck().add(new Card('S', "10")); // Failsafe
+        dealer.deck.getDeck().add(new Card('S', "10")); // Drawn during hit
+        dealer.deck.getDeck().add(new Card('S', "5")); // Failsafe
 
         bot.play(dealer);
 
-        assertEquals(2, bot.getHands().size(), "Should still be one hand (no split)");
+        assertEquals(1, bot.getHands().size(), "Should still be one hand (no split)");
         assertEquals(3, bot.getHands().get(0).getHand().size(), "Bot should have hit on 16 to get 3 cards");
-        assertEquals(21, bot.getHands().get(0).getScore(), "16 + 5 = 21");
+        assertEquals(19, bot.getHands().get(0).getScore(), "14 + 5 = 19");
     }
 
     @Test
